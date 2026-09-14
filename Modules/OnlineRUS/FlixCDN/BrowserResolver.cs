@@ -137,7 +137,7 @@ static class FlixCdnBrowserResolver
             {
                 Headless = false,
                 ExecutablePath = executablePath,
-                Args = CoreInit.conf.chromium.Args
+                Args = GetHeadedBrowserArgs()
             };
 
             if (!string.IsNullOrEmpty(display))
@@ -255,6 +255,19 @@ static class FlixCdnBrowserResolver
         }
 
         return candidates.FirstOrDefault(File.Exists);
+    }
+
+
+    static string[] GetHeadedBrowserArgs()
+    {
+        var args = CoreInit.conf.chromium.Args;
+        if (args == null || args.Length == 0)
+            return args;
+
+        return args.Where(arg =>
+            !string.Equals(arg, "--headless", StringComparison.OrdinalIgnoreCase)
+            && !(arg?.StartsWith("--headless=", StringComparison.OrdinalIgnoreCase) ?? false)
+        ).ToArray();
     }
 
 
